@@ -24,6 +24,8 @@ ${yamlencode(
           ansible_host = (can(group.jumphost) ?
             host.network_interface.0.ip_address :
             host.network_interface.0.nat_ip_address)
+          ip_address = host.network_interface.0.ip_address
+          nat_ip_address = host.network_interface.0.nat_ip_address
         }
       }
     }
