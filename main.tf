@@ -32,9 +32,7 @@ resource "yandex_compute_instance" "lb" {
     memory        = 1
     core_fraction = 20
   }
-  scheduling_policy {
-    preemptible = true
-  }
+  scheduling_policy { preemptible = true }
   boot_disk {
     initialize_params {
       image_id = data.yandex_compute_image.ubuntu2404.id
@@ -46,14 +44,7 @@ resource "yandex_compute_instance" "lb" {
     subnet_id = yandex_vpc_subnet.default.id
     nat       = true
   }
-  metadata = {
-    install-unified-agent = 0
-    serial-port-enable    = 0
-    user-data = templatefile("${path.module}/cloud-config.tftpl", {
-      username   = var.ssh_username,
-      public_key = file(format("%s.pub", var.ssh_key_file))
-    })
-  }
+  metadata = local.yandex_compute_instance_metadata
 }
 resource "yandex_compute_instance" "backend" {
   count       = 2
@@ -65,9 +56,7 @@ resource "yandex_compute_instance" "backend" {
     memory        = 1
     core_fraction = 20
   }
-  scheduling_policy {
-    preemptible = true
-  }
+  scheduling_policy { preemptible = true }
   boot_disk {
     initialize_params {
       image_id = data.yandex_compute_image.ubuntu2404.id
@@ -79,14 +68,7 @@ resource "yandex_compute_instance" "backend" {
     subnet_id = yandex_vpc_subnet.default.id
     nat       = false
   }
-  metadata = {
-    install-unified-agent = 0
-    serial-port-enable    = 0
-    user-data = templatefile("${path.module}/cloud-config.tftpl", {
-      username   = var.ssh_username,
-      public_key = file(format("%s.pub", var.ssh_key_file))
-    })
-  }
+  metadata = local.yandex_compute_instance_metadata
 }
 resource "yandex_compute_instance" "db" {
   count       = 1
@@ -98,9 +80,7 @@ resource "yandex_compute_instance" "db" {
     memory        = 1
     core_fraction = 20
   }
-  scheduling_policy {
-    preemptible = true
-  }
+  scheduling_policy { preemptible = true }
   boot_disk {
     initialize_params {
       image_id = data.yandex_compute_image.ubuntu2404.id
@@ -112,14 +92,7 @@ resource "yandex_compute_instance" "db" {
     subnet_id = yandex_vpc_subnet.default.id
     nat       = false
   }
-  metadata = {
-    install-unified-agent = 0
-    serial-port-enable    = 0
-    user-data = templatefile("${path.module}/cloud-config.tftpl", {
-      username   = var.ssh_username,
-      public_key = file(format("%s.pub", var.ssh_key_file))
-    })
-  }
+  metadata = local.yandex_compute_instance_metadata
 }
 resource "local_file" "inventory" {
   filename = "${path.root}/inventory.yml"
