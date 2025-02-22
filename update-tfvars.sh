@@ -15,11 +15,11 @@ SSH_KEY_FILE=secrets/yandex-cloud
 test -f "${SSH_KEY_FILE}" || \
   ssh-keygen -q -t ed25519 -f "${SSH_KEY_FILE}" -C terraform -N ''
 cat <<EOF > "terraform.tfvars"
-project = "${PROJECT}"
-token = "${TOKEN}"
-cloud_id = "${CLOUD_ID}"
-folder_id = "${FOLDER_ID}"
-zone = "${ZONE}"
+project      = "${PROJECT}"
+token        = "${TOKEN}"
+cloud_id     = "${CLOUD_ID}"
+folder_id    = "${FOLDER_ID}"
+zone         = "${ZONE}"
 ssh_username = "${SSH_USERNAME}"
 ssh_key_file = "${SSH_KEY_FILE}"
 EOF
