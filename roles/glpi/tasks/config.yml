@@ -20,11 +20,11 @@
 
 - name: Import certs tasks
   ansible.builtin.import_role:
-    name: copycerts
+    name: tls_copy
     public: false
   vars:
-    copycerts_certs: ['{{ glpi_db_certs }}']
-    copycerts_key_owner: glpi
+    tls_copy_certs: ['{{ glpi_db_certs }}']
+    tls_copy_key_owner: glpi
 
 - name: Create database
   ansible.builtin.import_tasks: database.yml

@@ -18,4 +18,7 @@
   ansible.builtin.file:
     path: '{{ glpi_dir }}/install/install.php'
     state: absent
+
+- name: Force all notified handlers to run
+  ansible.builtin.meta: flush_handlers
 ...

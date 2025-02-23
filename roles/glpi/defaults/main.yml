@@ -19,18 +19,20 @@ glpi_var_dir: /var/lib/glpi
 
 glpi_db_crypt_file: secrets/glpicrypt.key
 glpi_db_host: 127.0.0.1
-glpi_db_user: root
+glpi_db_user: glpi
 glpi_db_password: ''
 glpi_db_name: glpi
 glpi_db_certs:
-  ca_content: '{{ lookup("ansible.builtin.file", "secrets/CA.crt") }}'
-  ca_file: '{{ glpi_config_dir }}/dbsslca.crt'
+  ca_path: '{{ glpi_config_dir }}/dbsslca.crt'
+  cert_path: '{{ glpi_config_dir }}/dbsslcert.crt'
+  key_path: '{{ glpi_config_dir }}/dbsslkey.key'
+  ca_content: '{{ lookup("ansible.builtin.file",
+    "secrets/certs/ca.crt") }}'
   cert_content: '{{ lookup("ansible.builtin.file",
-    "secrets/{{ inventory_hostname }}.crt") }}'
-  cert_file: '{{ glpi_config_dir }}/dbsslcert.crt'
+    "secrets/certs/{{ inventory_hostname }}.crt") }}'
   key_content: '{{ lookup("ansible.builtin.file",
-    "secrets/{{ inventory_hostname }}.key") }}'
-  key_file: '{{ glpi_config_dir }}/dbsslkey.key'
+    "secrets/certs/{{ inventory_hostname }}.key") }}'
+
 
 glpi_config:
   config_db: |
@@ -41,9 +43,9 @@ glpi_config:
       public $dbpassword = '{{ glpi_db_password | urlencode }}';
       public $dbdefault = '{{ glpi_db_name }}';
       public $dbssl = true;
-      public $dbsslca = '{{ glpi_db_certs.ca_file }}';
-      public $dbsslcert = '{{ glpi_db_certs.cert_file }}';
-      public $dbsslkey = '{{ glpi_db_certs.key_file }}';
+      public $dbsslca = '{{ glpi_db_certs.ca_path }}';
+      public $dbsslcert = '{{ glpi_db_certs.cert_path }}';
+      public $dbsslkey = '{{ glpi_db_certs.key_path }}';
       public $use_utf8mb4 = true;
       public $allow_myisam = false;
       public $allow_datetime = false;
