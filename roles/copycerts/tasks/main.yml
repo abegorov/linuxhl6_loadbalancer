@@ -1,0 +1,52 @@
+---
+- name: Create directories for certs and keys
+  ansible.builtin.file:
+    path: '{{ item }}'
+    mode: '0755'
+    state: directory
+  loop: '{{
+    (copycerts_certs | selectattr("ca_file", "defined") | map(attribute="ca_file") +
+     copycerts_certs | selectattr("cert_file", "defined") | map(attribute="cert_file") +
+     copycerts_certs | selectattr("key_file", "defined") | map(attribute="key_file"))
+    | map("ansible.builtin.dirname") | ansible.builtin.unique }}'
+
+- name: Update CA certificates
+  ansible.builtin.copy:
+    content: |
+      {{ item.ca_content }}
+    dest: '{{ item.ca_file }}'
+    owner: '{{ copycerts_cert_owner }}'
+    group: '{{ copycerts_cert_group }}'
+    mode: '{{ copycerts_cert_mode }}'
+  loop: '{{ copycerts_certs }}'
+  no_log: '{{ not debug }}'
+  notify: '{{ copycerts_notify }}'
+  when: item.ca_file is defined
+
+- name: Update certificates
+  ansible.builtin.copy:
+    content: |
+      {{ item.cert_content }}
+      {% if item.ca_content is defined and item.ca_file is not defined %}
+      {{ item.ca_content }}
+      {% endif %}
+    dest: '{{ item.cert_file }}'
+    owner: '{{ copycerts_cert_owner }}'
+    group: '{{ copycerts_cert_group }}'
+    mode: '{{ copycerts_cert_mode }}'
+  loop: '{{ copycerts_certs }}'
+  notify: '{{ copycerts_notify }}'
+  no_log: '{{ not debug }}'
+
+- name: Update keys
+  ansible.builtin.copy:
+    content: |
+      {{ item.key_content }}
+    dest: '{{ item.key_file }}'
+    owner: '{{ copycerts_key_owner }}'
+    group: '{{ copycerts_key_group }}'
+    mode: '{{ copycerts_key_mode }}'
+  loop: '{{ copycerts_certs }}'
+  notify: '{{ copycerts_notify }}'
+  no_log: '{{ not debug }}'
+...

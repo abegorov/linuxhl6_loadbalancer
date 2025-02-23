@@ -1,0 +1,23 @@
+---
+- name: Import install tasks
+  ansible.builtin.import_tasks: install.yml
+
+- name: Import config tasks
+  ansible.builtin.import_tasks: config.yml
+
+- name: Import certs tasks
+  ansible.builtin.import_role:
+    name: copycerts
+    public: false
+  vars:
+    copycerts_certs: ['{{ mariadb_certs }}']
+    copycerts_key_owner: mysql
+    copycerts_notify: Restart mariadb service
+
+- name: Enable and start mariadb service
+  ansible.builtin.systemd_service:
+    name: mariadb.service
+    enabled: true
+    state: started
+  ignore_errors: '{{ ansible_check_mode }}'
+...

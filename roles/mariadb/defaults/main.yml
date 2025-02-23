@@ -1,0 +1,25 @@
+---
+mariadb_repo_setup_checksum: >-
+  sha256:c4a0f3dade02c51a6a28ca3609a13d7a0f8910cccbb90935a2f218454d3a914a
+mariadb_version: 'mariadb-11.7'
+
+mariadb_certs:
+  ca_content: '{{ lookup("ansible.builtin.file", "secrets/CA.crt") }}'
+  ca_file: /etc/mysql/mariadb_ca.crt
+  cert_content: '{{ lookup("ansible.builtin.file",
+    "secrets/{{ inventory_hostname }}.crt") }}'
+  cert_file: /etc/mysql/mariadb.crt
+  key_content: '{{ lookup("ansible.builtin.file",
+    "secrets/{{ inventory_hostname }}.key") }}'
+  key_file: /etc/mysql/mariadb.key
+
+mariadb_config: |
+  [client-server]
+  socket = /run/mysqld/mysqld.sock
+
+  [mariadbd]
+  pid-file                = /run/mysqld/mysqld.pid
+  basedir                 = /usr
+  bind-address            = 127.0.0.1
+  expire_logs_days        = 10
+...

@@ -1,0 +1,10 @@
+---
+- name: Update MariaDB configuration
+  ansible.builtin.copy:
+    content: '{{ mariadb_config }}'
+    dest: /etc/mysql/mariadb.cnf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart mariadb service
+...

@@ -1,0 +1,16 @@
+copycerts_certs:
+  - ca_content: '{{ lookup("ansible.builtin.file", "secrets/CA.crt") }}'
+    ca_file: /etc/ssl/certs/copycert_ca.crt
+    cert_content: '{{ lookup("ansible.builtin.file",
+      "secrets/{{ inventory_hostname }}.crt") }}'
+    cert_file: /etc/ssl/copycert.pem
+    key_content: '{{ lookup("ansible.builtin.file",
+      "secrets/{{ inventory_hostname }}.key") }}'
+    key_file: /etc/ssl/copycert.pem
+copycerts_cert_owner: root
+copycerts_cert_group: root
+copycerts_cert_mode: '0644'
+copycerts_key_owner: root
+copycerts_key_group: root
+copycerts_key_mode: '0600'
+copycerts_notify: []
