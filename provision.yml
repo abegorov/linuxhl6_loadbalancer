@@ -1,8 +1,26 @@
 ---
-- name: Wait for connection
+- name: Create certs and wait for connection
   hosts: all
   become: true
   gather_facts: false
   roles:
+    - tls_ca
+    - tls_certs
     - wait_connection
+
+- name: DB provision
+  hosts: db
+  become: true
+  gather_facts: false
+  roles:
+    - mariadb
+    - mariadb_databases
+    - mariadb_users
+
+- name: Backend provision
+  hosts: backend
+  become: true
+  gather_facts: false
+  roles:
+    - php_fpm
 ...
