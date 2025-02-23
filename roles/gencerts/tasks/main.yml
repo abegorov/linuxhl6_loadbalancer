@@ -1,0 +1,62 @@
+---
+- name: Create directories for certs and keys
+  become: false
+  delegate_to: localhost
+  ansible.builtin.file:
+    path: '{{ item }}'
+    mode: '0755'
+    state: directory
+  loop: '{{ (gencerts_certs | map(attribute="certificate_path") +
+             gencerts_certs | map(attribute="privatekey_path"))
+    | map("ansible.builtin.dirname") | ansible.builtin.unique }}'
+
+- name: Create private keys
+  become: false
+  delegate_to: localhost
+  community.crypto.openssl_privatekey:
+    path: '{{ item.privatekey_path }}'
+  loop: '{{ gencerts_certs }}'
+  no_log: '{{ not debug }}'
+
+- name: Create certificate signing requests (CSRs)
+  become: false
+  delegate_to: localhost
+  community.crypto.openssl_csr_pipe:
+    common_name: '{{ item.common_name | default(gencerts_common_name) }}'
+    extended_key_usage: '{{ item.extended_key_usage |
+      default(gencerts_extended_key_usage) }}'
+    extended_key_usage_critical: '{{ item.extended_key_usage_critical |
+      default(gencerts_extended_key_usage_critical) }}'
+    key_usage: '{{ item.key_usage | default(gencerts_key_usage) }}'
+    key_usage_critical: '{{ item.key_usage_critical |
+      default(gencerts_key_usage_critical) }}'
+    privatekey_path: '{{ item.privatekey_path }}'
+    subject_alt_name: '{{ item.subject_alt_name |
+      default(gencerts_subject_alt_name) }}'
+    use_common_name_for_san: '{{ item.use_common_name_for_san |
+      default(gencerts_use_common_name_for_san) }}'
+  changed_when: false
+  loop: '{{ gencerts_certs }}'
+  no_log: '{{ not debug }}'
+  register: gencerts_csrs
+
+- name: Create certificates from CSRs
+  become: false
+  delegate_to: localhost
+  community.crypto.x509_certificate:
+    csr_content: "{{ item.csr }}"
+    ignore_timestamps: '{{ item.item.ignore_timestamps |
+      default(gencerts_ignore_timestamps) }}'
+    ownca_content: '{{ item.ca_content | default(gencerts_ca_content) }}'
+    ownca_not_after: '{{ item.item.not_after |
+      default(gencerts_not_after) }}'
+    ownca_not_before: '{{ item.item.not_before |
+      default(gencerts_not_before) }}'
+    ownca_privatekey_content: '{{ item.ca_privatekey_content |
+      default(gencerts_ca_privatekey_content) }}'
+    path: '{{ item.item.certificate_path }}'
+    privatekey_path: '{{ item.privatekey }}'
+    provider: ownca
+  loop: '{{ gencerts_csrs.results }}'
+  no_log: '{{ not debug }}'
+...

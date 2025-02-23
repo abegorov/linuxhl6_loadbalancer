@@ -1,0 +1,57 @@
+---
+- name: Create directories for certs and keys
+  become: false
+  delegate_to: localhost
+  ansible.builtin.file:
+    path: '{{ item }}'
+    mode: '0755'
+    state: directory
+  loop: '{{ (localca_certs | map(attribute="certificate_path") +
+             localca_certs | map(attribute="privatekey_path"))
+    | map("ansible.builtin.dirname") | ansible.builtin.unique }}'
+
+- name: Create private keys for CA
+  become: false
+  delegate_to: localhost
+  community.crypto.openssl_privatekey:
+    path: '{{ item.privatekey_path }}'
+  loop: '{{ localca_certs }}'
+  no_log: '{{ not debug }}'
+
+- name: Create certificate signing requests (CSRs) for CA certificates
+  become: false
+  delegate_to: localhost
+  community.crypto.openssl_csr_pipe:
+    basic_constraints: '{{ item.basic_constraints |
+      default(localca_basic_constraints) }}'
+    basic_constraints_critical: '{{ item.basic_constraints_critical |
+      default(localca_basic_constraints_critical) }}'
+    common_name: '{{ item.common_name | default(localca_common_name) }}'
+    key_usage: '{{ item.key_usage | default(localca_key_usage) }}'
+    key_usage_critical: '{{ item.key_usage_critical |
+      default(localca_key_usage_critical) }}'
+    privatekey_path: '{{ item.privatekey_path }}'
+    use_common_name_for_san: '{{ item.use_common_name_for_san |
+      default(localca_use_common_name_for_san) }}'
+  changed_when: false
+  loop: '{{ localca_certs }}'
+  no_log: '{{ not debug }}'
+  register: localca_csrs
+
+- name: Create self-signed CA certificates from CSRs
+  become: false
+  delegate_to: localhost
+  community.crypto.x509_certificate:
+    csr_content: "{{ item.csr }}"
+    ignore_timestamps: '{{ item.item.ignore_timestamps |
+      default(localca_ignore_timestamps) }}'
+    path: '{{ item.item.certificate_path }}'
+    privatekey_path: '{{ item.privatekey }}'
+    provider: selfsigned
+    selfsigned_not_after: '{{ item.item.not_after |
+      default(localca_not_after) }}'
+    selfsigned_not_before: '{{ item.item.not_before |
+      default(localca_not_before) }}'
+  loop: '{{ localca_csrs.results }}'
+  no_log: '{{ not debug }}'
+...
