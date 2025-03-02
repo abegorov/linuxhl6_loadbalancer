@@ -8,8 +8,8 @@ glpi_download_checksum: >-
 
 glpi_language: ru_RU
 
-glpi_uid: 60000
-glpi_gid: 60000
+glpi_user: glpi
+glpi_group: glpi
 
 glpi_dir: /usr/share/glpi
 glpi_cache_dir: /var/cache/glpi
@@ -32,7 +32,6 @@ glpi_db_certs:
     "secrets/certs/{{ inventory_hostname }}.crt") }}'
   key_content: '{{ lookup("ansible.builtin.file",
     "secrets/certs/{{ inventory_hostname }}.key") }}'
-
 
 glpi_config:
   config_db: |

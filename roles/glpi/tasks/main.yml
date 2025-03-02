@@ -1,7 +1,4 @@
 ---
-- name: Create glpi user and group
-  ansible.builtin.import_tasks: user.yml
-
 - name: Create GLPI directories
   ansible.builtin.import_tasks: dirs.yml
 
