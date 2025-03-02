@@ -48,7 +48,6 @@ mariadb_config_default:
   binlog_format: ROW
   binlog_expire_logs_seconds: 604800
   max_binlog_size: 16M
-  default_time_zone: Europe/Moscow
 mariadb_config_override: {}
 
 mariadb_confd_files: {}

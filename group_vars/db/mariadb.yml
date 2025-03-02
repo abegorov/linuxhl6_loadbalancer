@@ -25,7 +25,6 @@ mariadb_config_default:
   ssl_ca: '{{ mariadb_certs.ca_path }}'
   ssl_cert: '{{ mariadb_certs.cert_path }}'
   ssl_key: '{{ mariadb_certs.key_path }}'
-  default_time_zone: Europe/Moscow
 
 mariadb_users_list:
   - name: '{{ glpi_db_user }}'
