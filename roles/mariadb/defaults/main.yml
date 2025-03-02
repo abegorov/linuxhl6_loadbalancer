@@ -19,7 +19,7 @@ mariadb_config: |
   socket = "/run/mysqld/mysqld.sock"
 
   [mariadbd]
-  pid-file = "/run/mysqld/mysqld.pid"
+  pid_file = "/run/mysqld/mysqld.pid"
   basedir = "/usr"
   {%
     set config = mariadb_config_default |
@@ -36,7 +36,7 @@ mariadb_config: |
   {% endfor %}
 
 mariadb_config_default:
-  bind-address: '127.0.0.1'
+  bind_address: '127.0.0.1'
   expire_logs_days: 10
   server_id: 0
   gtid_domain_id: 0
@@ -44,10 +44,11 @@ mariadb_config_default:
   skip_name_resolve: true
   wait_timeout: 60
   log_bin: true
-  log-basename: mariadb
+  log_basename: mariadb
   binlog_format: ROW
   binlog_expire_logs_seconds: 604800
   max_binlog_size: 16M
+  default_time_zone: Europe/Moscow
 mariadb_config_override: {}
 
 mariadb_confd_files: {}
