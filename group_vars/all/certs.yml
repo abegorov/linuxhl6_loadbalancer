@@ -9,6 +9,8 @@ web_ca_cert_path: '{{ web_certs_dir }}/ca.crt'
 web_ca_key_path: '{{ web_certs_dir }}/ca.key'
 web_cert_path: '{{ web_certs_dir }}/{{ inventory_hostname }}.crt'
 web_key_path: '{{ web_certs_dir }}/{{ inventory_hostname }}.key'
+web_cert_not_after: '20260101000000Z'
+web_cert_not_before: '20250101000000Z'
 
 tls_ca_not_after: '21250101000000Z'
 tls_ca_not_before: '20250101000000Z'

@@ -1,0 +1,72 @@
+---
+angie_backend_ips: '{{ groups["backend"] | map("ansible.builtin.extract",
+  hostvars, "ip_address") }}'
+angie_httpd_conf_frontend_hash:
+  frontend-hash: |
+    upstream backend-hash {
+    {% for ip in angie_backend_ips %}
+      server {{ ip }}:443;
+    {% endfor %}
+      hash $remote_addr consistent;
+      keepalive 16;
+    }
+
+    server {
+      listen 443 default_server reuseport ssl;
+      listen [::]:443 default_server reuseport ssl;
+      http2 on;
+
+      ssl_certificate     {{ angie_web_cert.cert_path }};
+      ssl_certificate_key {{ angie_web_cert.key_path }};
+
+      root   /usr/share/angie/html;
+
+      error_page  500 502 503 504  /50x.html;
+      location = /50x.html {
+        root   /usr/share/angie/html;
+      }
+
+      location / {
+        proxy_pass https://backend-hash;
+      }
+
+      location /api/ {
+        proxy_pass https://backend-hash/apirest.php/;
+      }
+    }
+angie_httpd_conf_frontend_rr:
+  frontend-rr: |
+    upstream backend-rr {
+    {% for ip in angie_backend_ips %}
+      server {{ ip }}:443;
+    {% endfor %}
+      keepalive 16;
+    }
+
+    server {
+      listen 8443 default_server reuseport ssl;
+      listen [::]:8443 default_server reuseport ssl;
+      http2 on;
+
+      ssl_certificate     {{ angie_web_cert.cert_path }};
+      ssl_certificate_key {{ angie_web_cert.key_path }};
+
+      root   /usr/share/angie/html;
+
+      error_page  500 502 503 504  /50x.html;
+      location = /50x.html {
+        root   /usr/share/angie/html;
+      }
+
+      location / {
+        proxy_pass https://backend-rr;
+      }
+
+      location /api/ {
+        proxy_pass https://backend-rr/apirest.php/;
+      }
+    }
+angie_httpd_conf: '{{ angie_httpd_conf_default | ansible.builtin.combine(
+  angie_httpd_conf_status, angie_httpd_conf_frontend_hash,
+  angie_httpd_conf_frontend_rr) }}'
+...
