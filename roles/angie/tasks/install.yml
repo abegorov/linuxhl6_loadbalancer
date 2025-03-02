@@ -1,0 +1,8 @@
+---
+- name: Install angie and required module
+  ansible.builtin.apt:
+    update_cache: true
+    name: '{{ ["angie", "ca-certificates"] + ["angie-module-"] |
+      ansible.builtin.product(angie_modules) | map("join") }}'
+    state: present
+...
