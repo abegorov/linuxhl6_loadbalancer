@@ -17,6 +17,7 @@
   loop: '{{ glpi_config | ansible.builtin.dict2items }}'
   loop_control:
     label: '{{ item.key }}'
+  no_log: true
 
 - name: Import certs tasks
   ansible.builtin.import_role:
