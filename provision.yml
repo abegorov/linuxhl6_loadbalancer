@@ -7,6 +7,8 @@
     - tls_ca
     - tls_certs
     - wait_connection
+    - system_groups
+    - system_users
 
 - name: DB provision
   hosts: db
@@ -14,8 +16,16 @@
   gather_facts: false
   roles:
     - mariadb
+    - mariadb_timezones
     - mariadb_databases
     - mariadb_users
+
+- name: Web provision
+  hosts: [lb, backend]
+  become: true
+  gather_facts: false
+  roles:
+    - angie
 
 - name: Backend provision
   hosts: backend
@@ -23,4 +33,5 @@
   gather_facts: false
   roles:
     - php_fpm
+    - glpi
 ...
